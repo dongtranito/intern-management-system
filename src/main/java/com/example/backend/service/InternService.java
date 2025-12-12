@@ -1,13 +1,18 @@
 package com.example.backend.service;
 
+import com.example.backend.dto.InternDTO;
 import com.example.backend.model.*;
 import com.example.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
-public class InternService {  // chỗ này tí nữa m viết một cái baseService
+public class InternService {
 
     @Autowired
     private InternRepository internRepo;
@@ -24,30 +29,24 @@ public class InternService {  // chỗ này tí nữa m viết một cái baseSe
         return mentorRepo.save(mentor);
     }
 
-    public Intern addIntern(Intern intern, Long projectId, Long mentorId) {
-        Project project = projectRepo.findById(projectId).orElse(null);
-        Mentor mentor = mentorRepo.findById(mentorId).orElse(null);
+    @Transactional
+    public Map<String, Object> addIntern(InternDTO dto) {
+        Intern intern = new Intern();
+        intern.setFullName(dto.getFullName());
+        intern.setEmail(dto.getEmail());
+
+        Project project = projectRepo.findById(dto.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Project ID: " + dto.getProjectId()));
         intern.setProject(project);
+
+        Mentor mentor = mentorRepo.findById(dto.getMentorId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Mentor ID: " + dto.getMentorId()));
         intern.setMentor(mentor);
-        return internRepo.save(intern);
-    }
-
-    public Intern updateIntern(Long id, Intern newInternData) {
-        Intern existingIntern = internRepo.findById(id).orElse(null);
-
-        if (existingIntern != null) {
-            existingIntern.setFullName(newInternData.getFullName());
-            existingIntern.setEmail(newInternData.getEmail());
-            return internRepo.save(existingIntern);
-        }
-        return null; 
-    }
-
-    public void deleteIntern(Long id) {
-        internRepo.deleteById(id);
-    }
-
-    public List<Intern> getAllInterns() {
-        return internRepo.findAll();
+        internRepo.save(intern);
+        Map<String, Object> data = new HashMap<>();
+        data.put("internId", intern.getId());
+        data.put("projectId", project.getId());
+        data.put("mentorId", mentor.getId());
+        return data;
     }
 }
