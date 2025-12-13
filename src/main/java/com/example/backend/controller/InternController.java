@@ -34,6 +34,12 @@ public class InternController extends BaseController {
         return responseSuccess(data);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getInternById(@PathVariable Long id) {
+        Map<String, Object> data = internService.getInternById(id);
+        return responseSuccess(data);
+    }
+
     @GetMapping
     public ResponseEntity<?> searchInterns(
             @RequestParam(required = false) String keyword,

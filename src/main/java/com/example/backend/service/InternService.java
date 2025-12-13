@@ -77,6 +77,12 @@ public class InternService {
         return mapToResponse(updated);
     }
 
+    public Map<String, Object> getInternById(Long id) {
+        Intern intern = internRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Intern ID: " + id));
+        return mapToResponse(intern);
+    }
+
     public List<Map<String, Object>> searchInterns(String keyword, Long projectId) {
         List<Intern> interns = internRepo.searchInterns(keyword, projectId);
         return interns.stream()
